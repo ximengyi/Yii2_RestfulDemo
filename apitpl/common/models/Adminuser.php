@@ -1,7 +1,7 @@
 <?php
 
 namespace common\models;
-
+use yii\web\IdentityInterface;
 use Yii;
 
 /**
@@ -21,8 +21,10 @@ use Yii;
  * @property int $created_at 创建时间
  * @property int $updated_at 最后修改时间
  */
-class Adminuser extends \yii\db\ActiveRecord
+class Adminuser extends \yii\db\ActiveRecord implements IdentityInterface
 {
+  const STATUS_DELETED = 0;
+  const STATUS_ACTIVE = 10;
     /**
      * @inheritdoc
      */
@@ -65,4 +67,69 @@ class Adminuser extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+      //  throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+      return static::findOne(['access_token'=>$token]);
+    }
+
+    public function generateAccessToken()
+    {
+      $this->access_token = Yii::$app->security->generateRandomString();
+      return  $this->access_token;
+    }
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    public static function findByPasswordResetToken($token)
+    {
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne([
+            'password_reset_token' => $token,
+            'status' => self::STATUS_ACTIVE,
+        ]);
+    }
+
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+    }
+        /**
+         * @inheritdoc
+         */
+        public function getId()
+        {
+            return $this->getPrimaryKey();
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function getAuthKey()
+        {
+            return $this->auth_key;
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function validateAuthKey($authKey)
+        {
+            return $this->getAuthKey() === $authKey;
+        }
+
+
 }

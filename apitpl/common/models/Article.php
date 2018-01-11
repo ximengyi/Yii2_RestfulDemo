@@ -18,6 +18,9 @@ use Yii;
  */
 class Article extends \yii\db\ActiveRecord
 {
+      const STATUS_DRAFT = 0;
+      const STATUS_PUBLISHED = 10;
+
     /**
      * @inheritdoc
      */
@@ -55,4 +58,26 @@ class Article extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
+    public function getCreatedBy()
+        {
+            return $this->hasOne(Adminuser::className(), ['id' => 'created_by']);
+        }
+  public function fields()
+  {
+    return[
+      'id',
+      'title',
+      '内容'=>'content',
+
+      'status'=>function($model){
+        return $model->status == self::STATUS_DRAFT?'草稿':'已发布';
+      },
+      'createBy'=>function ($model)
+      {
+        return $model->createdBy->realname;
+      },
+
+    ];
+  }
+
 }

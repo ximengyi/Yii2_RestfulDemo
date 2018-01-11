@@ -17,14 +17,15 @@ return [
             'csrfParam' => '_csrf-backend',
         ],
         'user' => [
-            'identityClass' => 'common\models\User',
+            'identityClass' => 'common\models\Adminuser',
             'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
+            'enableSession'=>false,
+          //  'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
-        'session' => [
-            // this is the name of the session cookie used for login on the backend
-            'name' => 'advanced-backend',
-        ],
+        // 'session' => [
+        //     // this is the name of the session cookie used for login on the backend
+        //     'name' => 'advanced-backend',
+        // ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
@@ -37,16 +38,28 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        
+
         'urlManager' => [
             'enablePrettyUrl' => true,
-			'enableStrictParsing'=> true,
+			      'enableStrictParsing'=> true,
             'showScriptName' => false,
             'rules' => [
-			['class'=>'yii\rest\UrlRule','controller'=>'article']
+		             	['class'=>'yii\rest\UrlRule','controller'=>'article'
+                ,
+                'extraPatterns'=>['POST search'=>'search'],
+              ]
+           ,
+           ['class'=>'yii\rest\UrlRule','controller'=>'top10',
+           'pluralize'=>false,
+         ],
+         ['class'=>'yii\rest\UrlRule','controller'=>'adminuser',
+         'pluralize'=>false,
+           'extraPatterns'=>['POST login'=>'login'],
+       ],
             ],
+
         ],
-        
+
     ],
     'params' => $params,
 ];
