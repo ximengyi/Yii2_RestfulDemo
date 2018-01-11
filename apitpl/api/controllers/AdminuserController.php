@@ -21,9 +21,10 @@ class AdminuserController extends ActiveController
      */
     public function actionLogin()
     {
-      $model = new ApiLoginForm();
-      $model->username = $_POST['username'];
-      $model->password = $_POST['password'];
+       $model = new ApiLoginForm();
+      // $model->username = $_POST['username'];
+      // $model->password = $_POST['password'];
+      $model->load(Yii::$app->getRequest()->getBodyParams(),'');
       if ($model->login()) {
       return ['access_token'=>$model->login()];
     }else {

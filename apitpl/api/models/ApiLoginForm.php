@@ -63,7 +63,9 @@ class ApiLoginForm extends Model
     {
         if ($this->validate()) {
           $accessToken = $this->_user->generateAccessToken();
+          $this->_user->expire_at =time()+60;
           $this->_user->save();
+          Yii::$app->user->login($this->_user,60);
           return $accessToken;
 
         }else{
