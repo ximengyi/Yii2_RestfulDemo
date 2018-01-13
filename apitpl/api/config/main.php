@@ -54,12 +54,16 @@ return [
          ],
          ['class'=>'yii\rest\UrlRule','controller'=>'adminuser',
          'pluralize'=>false,
-           'extraPatterns'=>['POST login'=>'login'],
+           'extraPatterns'=>['POST login'=>'login',
+           'POST signup'=>'signup',
+         ],
        ],
             ],
 
         ],
-
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager', // or use 'yii\rbac\DbManager'
+        ],
     ],
     'params' => $params,
 ];

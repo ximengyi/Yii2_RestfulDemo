@@ -45,6 +45,23 @@ class ArticleController extends ActiveController
 	 // ]);
    //
 	 // }
+	 public function checkAccess($action,$model=null,$params=[])
+	 {//对activecontroller类中的默认实现的方法进行权限设置
+		 if ($action==='view') {
+
+			 if(\Yii::$app->user->can('ActiveView')){
+	 			return  true;
+	 		   }
+		 }
+
+			if ($action === 'view'||$action==='update'||$action==='delete'||$action ==='create'||$action==='index') {
+			if (\Yii::$app->user->can('ArticleAdmin')) {
+				  return true;
+			}
+			}
+			throw new ForbiddenHttpException("对不起您没有进行该操作的权限");
+
+	 }
 
 	 public function actions()
 	 {

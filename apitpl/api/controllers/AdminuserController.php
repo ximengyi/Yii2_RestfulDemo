@@ -6,6 +6,7 @@ use yii\rest\ActiveController;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use api\models\ApiLoginForm;
+use api\models\ApiSignupForm;
 
 /**
  * Site controller
@@ -32,7 +33,17 @@ class AdminuserController extends ActiveController
        return $model;
       }
     }
-
+    public function actionSignup()
+    {
+       $model = new ApiSignupForm();
+       $model->load(Yii::$app->getRequest()->getBodyParams(),'');
+      if ($model->signup()) {
+      return ['result'=>'注册成功'];
+    }else {
+       $model->validate();
+       return $model;
+      }
+    }
     /**
      * Logout action.
      *

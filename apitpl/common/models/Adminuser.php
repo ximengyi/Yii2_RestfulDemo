@@ -3,7 +3,7 @@
 namespace common\models;
 use yii\web\IdentityInterface;
 use Yii;
-
+use yii\behaviors\TimestampBehavior;
 /**
  * This is the model class for table "adminuser".
  *
@@ -39,13 +39,19 @@ class Adminuser extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['id', 'email', 'password_hash', 'auth_key'], 'required'],
-            [['id', 'status', 'expire_at', 'logged_at', 'created_at', 'updated_at'], 'integer'],
+            [[ 'email', 'password_hash', 'auth_key'], 'required'],
+            [[ 'status', 'expire_at', 'logged_at', 'created_at', 'updated_at'], 'integer'],
             [['username'], 'string', 'max' => 32],
             [['realname', 'email', 'password_hash', 'auth_key', 'password_reset_token', 'access_token'], 'string', 'max' => 255],
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            TimestampBehavior::className(),
+        ];
+    }
     /**
      * @inheritdoc
      */
@@ -67,6 +73,38 @@ class Adminuser extends \yii\db\ActiveRecord implements IdentityInterface
             'updated_at' => 'Updated At',
         ];
     }
+    public function beforeSave($insert)
+    {
+        if(parent::beforeSave($insert))
+        {
+            if($insert)
+            {
+                $this->created_at = time();
+                $this->updated_at = time();
+            }
+            else
+            {
+                $this->updated_at = time();
+            }
+
+            return true;
+
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public static function isPasswordResetTokenValid($token)
+    {
+        if (empty($token)) {
+            return false;
+        }
+
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
+        return $timestamp + $expire >= time();
+    }
     public static function findIdentityByAccessToken($token, $type = null)
     {
       //  throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
@@ -75,6 +113,10 @@ class Adminuser extends \yii\db\ActiveRecord implements IdentityInterface
      ->where(['access_token'=>$token,'status'=>self::STATUS_ACTIVE])
      ->andWhere(['>','expire_at',time()])
      ->one();
+    }
+    public function setPassword($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     public function generateAccessToken()
@@ -133,6 +175,11 @@ class Adminuser extends \yii\db\ActiveRecord implements IdentityInterface
         public function validateAuthKey($authKey)
         {
             return $this->getAuthKey() === $authKey;
+        }
+
+        public function generateAuthKey()
+        {
+            $this->auth_key = Yii::$app->security->generateRandomString();
         }
 
 
