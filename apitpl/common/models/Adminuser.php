@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\base\NotSupportedException;
-
+use yii\filters\RateLimitInterface;
 /**
  * This is the model class for table "adminuser".
  *
@@ -21,12 +21,12 @@ use yii\base\NotSupportedException;
  * @property integer $logged_at
  * @property integer $created_at
  * @property integer $updated_at
- *
- * @property Article[] $articles
- * @property integer $allowance
+ *@property integer $allowance
  * @property integer $allowance_updated_at
+ * @property Article[] $articles
+ *
  */
-class Adminuser extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Adminuser extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface, RateLimitInterface
 {
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
@@ -57,7 +57,7 @@ class Adminuser extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             [['email', 'password_hash', 'auth_key'], 'required'],
-            [['status', 'expire_at', 'logged_at', 'created_at', 'updated_at'], 'integer'],
+            [['status', 'expire_at', 'logged_at', 'created_at', 'updated_at','allowance','allowance_updated_at'], 'integer'],
             [['username'], 'string', 'max' => 32],
             [['realname', 'email', 'password_hash', 'auth_key', 'password_reset_token', 'access_token'], 'string', 'max' => 255],
             [['email'], 'unique'],
@@ -86,6 +86,8 @@ class Adminuser extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'logged_at' => '登入时间',
             'created_at' => '创建时间',
             'updated_at' => '最后修改时间',
+            'allowance' => '剩余请求数',
+            'allowance_updated_at' => '请求更新时间',
         ];
     }
 
@@ -268,9 +270,21 @@ class Adminuser extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $this->access_token = Yii::$app->security->generateRandomString();
         return $this->access_token;
     }
+    public function getRateLimit($request,$action)
+    {
+      return [3,1];
+    }
 
-
-
+    public function loadAllowance($request,$action)
+    {
+      return [$this->allowance,$this->allowance_updated_at];
+    }
+    public function saveAllowance($request,$action,$allowance,$timestamp)
+    {
+      $this->allowance = $allowance;
+      $this->allowance_updated_at = $timestamp;
+      $this->save();
+    }
 
 
 

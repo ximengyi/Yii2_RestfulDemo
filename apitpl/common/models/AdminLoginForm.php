@@ -6,7 +6,7 @@ use yii\helpers\ArrayHelper;
 /**
  * Login form
  */
-class LoginForm extends Model
+class AdminLoginForm extends Model
 {
     public $username;
     public $password;
@@ -68,7 +68,7 @@ class LoginForm extends Model
     protected function getUser()
     {
         if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+            $this->_user = Adminuser::findByUsername($this->username);
         }
 
         return $this->_user;

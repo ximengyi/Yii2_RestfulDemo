@@ -10,8 +10,16 @@ return [
     'id' => 'app-api',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'api\controllers',
+
+    'language' => 'zh-CN',       //全局设置为中文--推荐
+
     'bootstrap' => ['log'],
     'modules' => [],
+    'modules' => [
+        'v2' => [
+            'class' => 'api\modeules\v2\Module',
+        ],
+    ],
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',

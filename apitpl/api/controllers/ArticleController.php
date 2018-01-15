@@ -19,12 +19,15 @@ class ArticleController extends ActiveController
 	 //基于QueryParamAuth的access——token的验证方式
    public function behaviors()
 	 {
-		 return ArrayHelper::merge(parent::behaviors(),
-   [
-		 'authenticatior'=>[
-			 'class'=>QueryParamAuth::className()
-		 ]
-	 ]);
+		 $behaciors = parent::behaviors();
+		 $behaviors['authenticator']=[
+			 'class'=>QueryParamAuth::className(),
+		 ];
+		 $behaciors['rateLimiter'] =[
+			 'class' => RateLimiter::className(),
+			 'enableRateLimitHeader' =>true,
+		 ];
+		 return $behaciors;
 
 	 }
 
