@@ -14,10 +14,9 @@ return [
     'language' => 'zh-CN',       //全局设置为中文--推荐
 
     'bootstrap' => ['log'],
-    'modules' => [],
     'modules' => [
         'v2' => [
-            'class' => 'api\modeules\v2\Module',
+            'class' => 'api\modules\v2\Module',
         ],
     ],
     'components' => [

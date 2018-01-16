@@ -7,6 +7,9 @@ use common\models\Article;
 use common\models\Adminuser;
 use yii\helpers\ArrayHelper;
 use yii\filters\auth\HttpBasicAuth;
+
+use yii\web\ForbiddenHttpException;
+use yii\filters\RateLimiter;
 /**
  * Article controller
  */
@@ -19,15 +22,15 @@ class ArticleController extends ActiveController
 	 //基于QueryParamAuth的access——token的验证方式
    public function behaviors()
 	 {
-		 $behaciors = parent::behaviors();
+		 $behaviors = parent::behaviors();
 		 $behaviors['authenticator']=[
 			 'class'=>QueryParamAuth::className(),
 		 ];
 		 $behaciors['rateLimiter'] =[
 			 'class' => RateLimiter::className(),
-			 'enableRateLimitHeader' =>true,
+			 'enableRateLimitHeaders' =>true,
 		 ];
-		 return $behaciors;
+		 return $behaviors;
 
 	 }
 
@@ -52,15 +55,15 @@ class ArticleController extends ActiveController
 	 {//对activecontroller类中的默认实现的方法进行权限设置
 		 if ($action==='view') {
 
-			 if(\Yii::$app->user->can('ActiveView')){
+			 if(\Yii::$app->user->can('ArticleViewer')){
 	 			return  true;
 	 		   }
 		 }
 
 			if ($action === 'view'||$action==='update'||$action==='delete'||$action ==='create'||$action==='index') {
-			if (\Yii::$app->user->can('ArticleAdmin')) {
+						if (\Yii::$app->user->can('ArticleAdmin')) {
 				  return true;
-			}
+						}
 			}
 			throw new ForbiddenHttpException("对不起您没有进行该操作的权限");
 
@@ -84,6 +87,12 @@ class ArticleController extends ActiveController
 }
     public function actionSearch()
 		{
+			if (!Yii::$app->user->can('ArticleAdmin')) {
+				 throw new ForbiddenHttpException('对不起，您没有进行该操作的权限');
+
+			}
+
+
 			return Article::find()->where(['like','title',$_POST['keyword']])->all();
 			// return "helloMENG";
 		}
