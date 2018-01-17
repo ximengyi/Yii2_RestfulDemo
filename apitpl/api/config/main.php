@@ -15,10 +15,10 @@ return [
 
     'bootstrap' => ['log'],
     'modules' => [
-        'v2' => [
-            'class' => 'api\modules\v2\Module',
-        ],
-    ],
+         'v2' => [
+             'class' => 'api\modules\v2\Module',
+         ],
+     ],
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
@@ -65,6 +65,10 @@ return [
            'POST signup'=>'signup',
          ],
        ],
+
+       ['class'=>'yii\rest\UrlRule','controller'=>'v2/article',
+
+                    ],
             ],
 
         ],
